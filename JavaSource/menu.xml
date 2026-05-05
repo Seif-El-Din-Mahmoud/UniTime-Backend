@@ -1,0 +1,1321 @@
+<!DOCTYPE unitime-menu PUBLIC "-//UniTime//UniTime Menu DTD/EN" "http://www.unitime.org/interface/menu.dtd">
+
+<!-- 
+ * Licensed to The Apereo Foundation under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for
+ * additional information regarding copyright ownership.
+ *
+ * The Apereo Foundation licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ -->
+<unitime-menu>
+	<menu name="Courses" title="Course Timetabling">
+		<condition>
+			<or>
+				<hasPermission name="InstructionalOfferings"/>
+				<hasPermission name="Classes"/>
+				<hasPermission name="HQLReportsCourses"/>
+				<hasPermission name="ClassAssignments"/>
+				<hasPermission name="InstructorDetail"/>
+				<hasPermission name="InstructorSurvey" authority="session"/>
+			</or>
+		</condition>
+		<menu name="Input Data" title="Course Timetabling Input Data">
+			<item name="Instructional Offerings" page="instructionalOfferingSearch.action">
+				<condition>
+					<hasPermission name="InstructionalOfferings"/>
+					<propertyEquals name="unitime.legacy.course.offerings" value="true" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Instructional Offerings" page="offerings" type="gwt">
+				<condition>
+					<hasPermission name="InstructionalOfferings"/>
+					<propertyEquals name="unitime.legacy.course.offerings" value="false" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Classes" page="classSearch.action">
+				<condition>
+					<hasPermission name="Classes"/>
+					<propertyEquals name="unitime.legacy.course.classes" value="true" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Classes" page="classSearch" type="gwt">
+				<condition>
+					<hasPermission name="Classes"/>
+					<propertyEquals name="unitime.legacy.course.classes" value="false" defaultValue="false"/>
+				</condition>
+			</item>
+			<separator/>
+			<menu name="Curricula" page="curricula" type="gwt">
+				<condition>
+					<hasPermission name="CurriculumView"/>
+				</condition>
+				<item name="Projection Rules" page="curprojrules" type="gwt">
+					<condition>
+						<hasPermission name="CurriculumProjectionRulesDetail"/>
+					</condition>
+				</item>
+			</menu>
+			<separator/>
+			<item name="Instructors" page="instructorSearch.action">
+				<condition>
+					<hasPermission name="Instructors"/>
+					<propertyEquals name="unitime.legacy.instructors" value="true" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Instructors" page="instructors" type="gwt">
+				<condition>
+					<hasPermission name="Instructors"/>
+					<propertyEquals name="unitime.legacy.instructors" value="false" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Instructor Attributes" page="instructorattributes" type="gwt">
+				<condition>
+					<hasPermission name="InstructorAttributes"/>
+				</condition>
+			</item>
+			<item name="Instructor Detail" page="instructorDetail.action">
+				<condition>
+					<hasPermission name="InstructorDetail"/>
+					<not>
+						<hasPermission name="Instructors"/>
+					</not>
+				</condition>
+			</item>
+			<item name="Instructor Survey" page="instructorSurvey" type="gwt">
+				<condition>
+					<hasPermission name="InstructorSurvey" authority="session"/>
+					<not>
+						<hasPermission name="Instructors"/>
+					</not>
+				</condition>
+			</item>
+			<separator/>
+			<menu name="Rooms" page="rooms" type="gwt">
+				<parameter name="mode">courses</parameter>
+				<condition>
+					<hasPermission name="Rooms"/>
+				</condition>
+				<item name="Room Features" page="roomfeatures" type="gwt">
+					<parameter name="mode">courses</parameter>
+					<condition>
+						<hasPermission name="RoomFeatures"/>
+					</condition>
+				</item>
+				<item name="Room Groups" page="roomgroups" type="gwt">
+					<parameter name="mode">courses</parameter>
+					<condition>
+						<hasPermission name="RoomGroups"/>
+					</condition>
+				</item>
+				<item name="Travel Times" page="traveltimes" type="gwt">
+					<condition>
+						<hasPermission name="TravelTimesLoad"/>
+					</condition>
+				</item>
+			</menu>
+			<separator/>
+			<item name="Distribution Preferences" page="distributionPrefs.action">
+				<condition>
+					<hasPermission name="DistributionPreferences"/>
+					<propertyEquals name="unitime.legacy.distributions" value="true"/>
+				</condition>
+			</item>
+			<item name="Distribution Preferences" page="distributions" type="gwt">
+				<condition>
+					<hasPermission name="DistributionPreferences"/>
+					<propertyEquals name="unitime.legacy.distributions" value="false"/>
+				</condition>
+			</item>
+			<item name="Reservations" page="reservations" type="gwt">
+				<condition>
+					<hasPermission name="Reservations"/>
+				</condition>
+			</item>
+			<item name="Class Assignments" page="classAssignmentsReportSearch.action">
+				<condition>
+					<hasPermission name="ClassAssignments"/>
+					<propertyEquals name="unitime.legacy.course.assignments" value="true" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Class Assignments" page="classAssignments" type="gwt">
+				<condition>
+					<hasPermission name="ClassAssignments"/>
+					<propertyEquals name="unitime.legacy.course.assignments" value="false" defaultValue="false"/>
+				</condition>
+			</item>
+		</menu>
+		<menu name="Course Timetabling" title="Course Timetabling Solver">
+			<condition>
+				<or>
+					<hasPermission name="CourseTimetabling"/>
+					<hasPermission name="Timetables"/>
+				</or>
+			</condition>
+			<item name="Saved Timetables" page="listSolutions" type="gwt">
+				<condition>
+					<hasPermission name="Timetables"/>
+				</condition>
+			</item>
+			<item name="Solver" page="solver" type="gwt">
+				<parameter name="type">course</parameter>
+				<condition>
+					<hasPermission name="Solver"/>
+				</condition>
+			</item>
+			<item name="Timetable Grid" page="timetableGrid" type="gwt">
+				<condition>
+					<hasPermission name="TimetableGrid"/>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Assigned Classes" page="assignedClasses" type="gwt">
+				<condition>
+					<hasPermission name="AssignedClasses"/>
+				</condition>
+			</item>
+			<item name="Not-assigned Classes" page="notAssignedClasses" type="gwt">
+				<condition>
+					<hasPermission name="NotAssignedClasses"/>
+				</condition>
+			</item>
+			<item name="Changes" page="solutionChanges" type="gwt">
+				<condition>
+					<hasPermission name="SolutionChanges"/>
+				</condition>
+			</item>
+			<item name="History" page="assignmentHistory" type="gwt">
+				<condition>
+					<hasPermission name="AssignmentHistory"/>
+				</condition>
+			</item>
+			<item name="Conflict Statistics" page="cbs" type="gwt">
+				<condition>
+					<hasPermission name="ConflictStatistics"/>
+				</condition>
+			</item>
+			<item name="Solver Log" page="solverlog" type="gwt">
+				<parameter name="type">course</parameter>
+				<condition>
+					<hasPermission name="SolverLog"/>
+				</condition>
+			</item>
+			<item name="Reports" page="solutionReports" type="gwt">
+				<condition>
+					<hasPermission name="SolutionReports"/>
+				</condition>
+			</item>
+		</menu>
+		<menu name="Course Audit" title="Course Timetabling Audit">
+			<condition>
+				<hasPermission name="CourseTimetablingAudit"/>
+			</condition>
+			<item name="Solver" page="solver" type="gwt">
+				<parameter name="type">course</parameter>
+				<condition>
+					<hasPermission name="Solver"/>
+				</condition>
+			</item>
+			<item name="Conflict Statistics" page="cbs" type="gwt">
+				<condition>
+					<hasPermission name="ConflictStatistics"/>
+				</condition>
+			</item>
+			<item name="Solver Log" page="solverlog" type="gwt">
+				<parameter name="type">course</parameter>
+				<condition>
+					<hasPermission name="SolverLog"/>
+				</condition>
+			</item>
+			<item name="Reports" page="solutionReports" type="gwt">
+				<condition>
+					<hasPermission name="SolutionReports"/>
+				</condition>
+			</item>
+		</menu>
+		<menu name="Instructor Scheduling">
+			<condition>
+				<hasPermission name="InstructorSchedulingSolver"/>
+			</condition>
+			<item name="Instructor Scheduling Solver" page="solver" type="gwt">
+				<parameter name="type">instructor</parameter>
+			</item>
+			<item name="Solver Log" page="solverlog" type="gwt">
+				<parameter name="type">instructor</parameter>
+				<condition>
+					<hasPermission name="InstructorSchedulingSolverLog"/>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Assigned Teaching Requests" page="teachingRequests" type="gwt">
+				<parameter name="assigned">true</parameter>
+			</item>
+			<item name="Not-Assigned Teaching Requests" page="teachingRequests" type="gwt">
+				<parameter name="assigned">false</parameter>
+			</item>
+			<item name="Teaching Assignments" page="teachingAssignments" type="gwt"/>
+			<item name="Assignment Changes" page="teachingAssignmentChanges" type="gwt"/>
+		</menu>
+		<item name="Reports" page="hql" type="gwt">
+			<parameter name="appearance">courses</parameter>
+			<condition>
+				<hasPermission name="HQLReportsCourses"/>
+			</condition>
+		</item>
+		<item name="Point In Time Data Reports" page="pointInTimeDataReports" type="gwt">
+			<condition>
+				<hasPermission name="PointInTimeDataReports"/>
+			</condition>
+		</item>
+	</menu>
+	<menu name="Curricula" title="Curriculum Timetabling">
+		<condition>
+			<hasPermission name="CurriculumView"/>
+			<not>
+				<hasPermission name="Classes"/>
+				<hasPermission name="InstructionalOfferings"/>
+			</not>
+		</condition>
+		<item name="Curricula" page="curricula" type="gwt">
+			<condition>
+				<hasPermission name="CurriculumView"/>
+			</condition>
+		</item>
+		<item name="Projection Rules" page="curprojrules" type="gwt">
+			<condition>
+				<hasPermission name="CurriculumProjectionRulesDetail"/>
+			</condition>
+		</item>
+	</menu>
+	<menu name="Students">
+		<condition>
+			<or>
+				<hasPermission name="StudentScheduling"/>
+				<hasPermission name="HQLReportsStudents"/>
+			</or>
+		</condition>
+		<menu name="Batch Solver" page="solver" type="gwt">
+			<parameter name="type">student</parameter>
+			<condition>
+				<hasPermission name="StudentSectioningSolver"/>
+			</condition>
+			<item name="Solver Log" page="solverlog" type="gwt">
+			<parameter name="type">student</parameter>
+				<condition>
+					<hasPermission name="StudentSectioningSolverLog"/>
+				</condition>
+			</item>
+			<item name="Solver Dashboard" page="batchsctdash" type="gwt">
+				<condition>
+					<hasPermission name="StudentSectioningSolverDashboard"/>
+				</condition>
+			</item>
+			<item name="Solver Reports" page="sctreport" type="gwt">
+				<condition>
+				    <hasPermission name="StudentSectioningSolver"/>
+				</condition>
+			</item>
+			<item name="Published Runs" page="publishedSolutions" type="gwt">
+				<condition>
+				    <hasPermission name="StudentSectioningSolverPublish"/>
+				</condition>
+			</item>
+		</menu>
+		<item name="Batch Scheduling Dashboard" page="batchsctdash" type="gwt">
+			<condition>
+			    <not>
+			        <hasPermission name="StudentSectioningSolver"/>
+			    </not>
+				<hasPermission name="StudentSectioningSolverDashboard"/>
+			</condition>
+		</item>
+		<item name="Batch Scheduling Reports" page="sctreport" type="gwt">
+			<condition>
+			    <not>
+			        <hasPermission name="StudentSectioningSolver"/>
+			    </not>
+				<hasPermission name="StudentSectioningSolverReports"/>
+			</condition>
+		</item>
+		<separator>
+			<condition>
+				<or>
+					<hasPermission name="SchedulingAssistant" authority="role"/>
+					<hasPermission name="CourseRequests" authority="role"/>
+					<hasPermission name="AdvisorCourseRequests" authority="role"/>
+				</or>
+			</condition>
+		</separator>
+		<item name="Scheduling Assistant" page="sectioning" type="gwt">
+			<condition>
+				<hasPermission name="SchedulingAssistant" authority="role"/>
+			</condition>
+		</item>
+		<item name="Online Scheduling Dashboard" page="onlinesctdash" type="gwt">
+			<condition>
+				<hasPermission name="SchedulingDashboard"/>
+			</condition>
+		</item>
+		<item name="Online Scheduling Reports" page="onlinereport" type="gwt">
+			<condition>
+				<hasPermission name="SchedulingReports"/>
+			</condition>
+		</item>
+		<item name="Course Requests" page="requests" type="gwt">
+			<condition>
+				<hasPermission name="CourseRequests" authority="role"/>
+			</condition>
+		</item>
+		<item name="Advisor Course Recommendations" page="acrf" type="gwt">
+			<condition>
+				<hasPermission name="AdvisorCourseRequests" authority="role"/>
+			</condition>
+		</item>
+		<separator/>
+		<item name="Enrollment Audits" page="enrollmentAuditPdfReport.action">
+			<condition>
+				<hasPermission name="EnrollmentAuditPDFReports"/>
+			</condition>
+		</item>
+		<item name="Reports" page="hql" type="gwt">
+			<parameter name="appearance">sectioning</parameter>
+			<condition>
+				<hasPermission name="HQLReportsStudents"/>
+			</condition>
+		</item>
+	</menu>
+	<menu name="Examinations">
+		<condition>
+			<or>
+				<hasPermission name="Examinations"/>
+				<hasPermission name="HQLReportsExaminations"/>
+			</or>
+		</condition>
+		<menu name="Input Data">
+			<condition>
+				<hasPermission name="Examinations"/>
+			</condition>
+			<item name="Instructors" page="instructorSearch.action">
+				<condition>
+					<hasPermission name="Instructors"/>
+				</condition>
+			</item>
+			<separator/>
+			<menu name="Rooms" page="rooms" type="gwt">
+				<parameter name="mode">exams</parameter>
+				<condition>
+					<hasPermission name="Rooms"/>
+				</condition>
+				<item name="Room Features" page="roomfeatures" type="gwt">
+					<parameter name="mode">exams</parameter>
+					<condition>
+						<hasPermission name="RoomFeatures"/>
+					</condition>
+				</item>
+				<item name="Room Groups" page="roomgroups" type="gwt">
+					<parameter name="mode">exams</parameter>
+					<condition>
+						<hasPermission name="RoomGroups"/>
+					</condition>
+				</item>
+				<item name="Room Availability" page="roomAvailability.action">
+					<condition>
+						<hasPermission name="RoomAvailability"/>
+					</condition>
+				</item>
+			</menu>
+			<separator/>
+			<item name="Examinations" page="examList.action">
+				<condition>
+					<propertyEquals name="unitime.legacy.examinations" value="true" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Examinations" page="examinations" type="gwt">
+				<condition>
+					<propertyEquals name="unitime.legacy.examinations" value="false" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Distribution Preferences" page="examDistributionPrefs.action">
+				<condition>
+					<hasPermission name="ExaminationDistributionPreferences"/>
+					<propertyEquals name="unitime.legacy.examDistributions" value="true" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Distribution Preferences" page="examDistributions" type="gwt">
+				<condition>
+					<hasPermission name="ExaminationDistributionPreferences"/>
+					<propertyEquals name="unitime.legacy.examDistributions" value="false" defaultValue="false"/>
+				</condition>
+			</item>
+		</menu>
+		<menu name="Examination Timetabling">
+			<condition>
+				<hasPermission name="ExaminationTimetabling"/>
+			</condition>
+			<item name="Examination Solver" page="solver" type="gwt">
+				<parameter name="type">exam</parameter>
+				<condition>
+					<hasPermission name="ExaminationSolver"/>
+				</condition>
+			</item>
+			<item name="Timetable Grid" page="examGrid.action">
+				<condition>
+					<hasPermission name="ExaminationTimetable"/>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Assigned Exams" page="assignedExams.action">
+				<condition>
+					<hasPermission name="AssignedExaminations"/>
+				</condition>
+			</item>
+			<item name="Not-assigned Exams" page="unassignedExams.action">
+				<condition>
+					<hasPermission name="NotAssignedExaminations"/>
+				</condition>
+			</item>
+			<item name="Changes" page="examChanges.action">
+				<condition>
+					<hasPermission name="ExaminationAssignmentChanges"/>
+				</condition>
+			</item>
+			<item name="Conflict Statistics" page="ecbs.action">
+				<condition>
+					<hasPermission name="ExaminationConflictStatistics"/>
+				</condition>
+			</item>
+			<item name="Solver Log" page="solverlog" type="gwt">
+				<parameter name="type">exam</parameter>
+				<condition>
+					<hasPermission name="ExaminationSolverLog"/>
+				</condition>
+			</item>
+			<separator>
+				<condition>
+					<hasPermission name="ExaminationReports"/>
+				</condition>
+			</separator>
+			<item name="Reports" page="examAssignmentReport.action">
+				<condition>
+					<hasPermission name="ExaminationReports"/>
+				</condition>
+			</item>
+		</menu>
+		<item name="Pdf Reports" page="examPdfReport.action">
+			<condition>
+				<hasPermission name="ExaminationPdfReports"/>
+			</condition>
+		</item>
+		<item name="Reports" page="hql" type="gwt">
+			<parameter name="appearance">exams</parameter>
+			<condition>
+				<hasPermission name="HQLReportsExaminations"/>
+			</condition>
+		</item>
+	</menu>
+	<item name="Course Requests" page="requests" type="gwt">
+		<condition>
+			<hasPermission name="CourseRequests" authority="role"/>	
+			<not>
+				<hasPermission name="StudentScheduling"/>
+			</not>
+		</condition>
+	</item>
+	<item name="Scheduling Assistant" page="sectioning" type="gwt">
+		<condition>
+			<hasPermission name="SchedulingAssistant" authority="role"/>	
+			<not>
+				<hasPermission name="StudentScheduling"/>
+			</not>
+		</condition>
+	</item>
+	<item name="Scheduling Dashboard" page="onlinesctdash" type="gwt">
+		<condition>
+			<hasPermission name="SchedulingDashboard"/>
+			<not>
+				<hasPermission name="StudentScheduling"/>
+			</not>
+		</condition>
+	</item>
+	<item name="Advisor Course Recommendations" page="acrf" type="gwt">
+		<condition>
+			<hasPermission name="AdvisorCourseRequests" authority="role"/>
+			<not>
+				<hasPermission name="StudentScheduling"/>
+			</not>
+		</condition>
+	</item>
+	<item name="Personal Schedule" page="personal" type="gwt">
+		<condition>
+			<hasPermission name="PersonalSchedule"/>
+		</condition>
+	</item>
+	<item name="Lookup Classes" page="classes" type="gwt">
+		<condition>
+			<hasPermission name="Events" authority="any"/>
+			<not>
+				<hasPermission name="HasRole"/>
+			</not>
+		</condition>
+	</item>
+	<item name="Lookup Examinations" page="exams" type="gwt">
+		<condition>
+			<hasPermission name="Events" authority="any"/>
+			<not>
+				<hasPermission name="HasRole"/>
+			</not>
+		</condition>
+	</item>
+	<item name="Timetable" page="timetable" type="gwt">
+		<condition>
+			<hasPermission name="Events" authority="any"/>
+			<hasRole name="Anonymous"/>
+		</condition>
+	</item>
+	<menu name="Events">
+		<condition>
+			<or>
+				<hasPermission name="Events" authority="any"/>
+				<hasPermission name="HQLReportsEvents"/>
+			</or>
+			<not>
+				<hasRole name="Anonymous"/>
+			</not>
+		</condition>
+		<menu name="Rooms" page="rooms" type="gwt">
+			<parameter name="mode">events</parameter>
+			<condition>
+				<hasPermission name="Rooms"/>
+			</condition>
+			<item name="Room Features" page="roomfeatures" type="gwt">
+				<parameter name="mode">events</parameter>
+				<condition>
+					<hasPermission name="RoomFeatures"/>
+				</condition>
+			</item>
+			<item name="Room Groups" page="roomgroups" type="gwt">
+				<parameter name="mode">events</parameter>
+				<condition>
+					<hasPermission name="RoomGroups"/>
+				</condition>
+			</item>
+		</menu>
+		<separator>
+			<condition>
+				<hasPermission name="Rooms"/>
+			</condition>
+		</separator>
+		<item name="Events" page="events" type="gwt"/>
+		<item name="Add Event" page="events#event=add" type="gwt">
+			<condition>
+				<or>
+					<hasPermission name="EventAddSpecial" authority="any"/>
+					<hasPermission name="EventAddCourseRelated" authority="any"/>
+					<hasPermission name="EventAddUnavailable" authority="any"/>
+				</or>
+			</condition>
+		</item>
+		<item name="Room Availability" page="availability" type="gwt"/>
+		<separator/>
+		<item name="Timetable" page="timetable" type="gwt"/>
+		<item name="Reports" page="hql" type="gwt">
+			<parameter name="appearance">events</parameter>
+			<condition>
+				<hasPermission name="HQLReportsEvents"/>
+			</condition>
+		</item>
+	</menu>
+	<separator/>
+	<menu name="Administration">
+		<condition>
+			<hasPermission name="IsAdmin"/>
+		</condition>
+		<menu name="Academic Sessions">
+			<item name="Academic Sessions" page="sessionList.action">
+				<condition>
+					<hasPermission name="AcademicSessions"/>
+				</condition>
+			</item>
+			<item name="Managers" page="timetableManagerList.action">
+				<condition>
+					<hasPermission name="TimetableManagers"/>
+				</condition>
+			</item>
+			<item name="Departments" page="departmentList.action">
+				<condition>
+					<hasPermission name="Departments"/>
+					<propertyEquals name="unitime.legacy.admin.departments" value="true" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Departments" page="departments" type="gwt">
+				<condition>
+					<hasPermission name="Departments"/>
+					<propertyEquals name="unitime.legacy.admin.departments" value="false" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Solver Groups" page="solverGroupEdit.action">
+				<condition>
+					<hasPermission name="SolverGroups"/>
+				</condition>
+			</item>
+			<item name="Subject Areas" page="subjectList.action">
+				<condition>
+					<hasPermission name="SubjectAreas"/>
+					<propertyEquals name="unitime.legacy.admin.subjectAreas" value="true" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Subject Areas" page="admin" type="gwt">
+				<parameter name="type">subjectArea</parameter>
+				<condition>
+					<hasPermission name="SubjectAreas"/>
+					<propertyEquals name="unitime.legacy.admin.subjectAreas" value="false" defaultValue="false"/>
+				</condition>
+			</item>
+			<item name="Buildings" page="buildings" type="gwt">
+				<condition>
+					<hasPermission name="BuildingList"/>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Date Patterns" page="datePatternEdit.action">
+				<condition>
+					<hasPermission name="DatePatterns"/>
+				</condition>
+			</item>
+			<item name="Time Patterns" page="timePatternEdit.action">
+				<condition>
+					<hasPermission name="TimePatterns"/>
+				</condition>
+			</item>
+			<item name="Exact Time" page="exactTimeEdit.action">
+				<condition>
+					<hasPermission name="ExactTimes"/>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Academic Areas" page="admin" type="gwt">
+				<parameter name="type">area</parameter>
+				<condition>
+					<hasPermission name="AcademicAreas"/>
+				</condition>
+			</item>
+			<item name="Academic Classifications" page="admin" type="gwt">
+				<parameter name="type">classification</parameter>
+				<condition>
+					<hasPermission name="AcademicClassifications"/>
+				</condition>
+			</item>
+			<item name="Degrees" page="admin" type="gwt">
+				<parameter name="type">degree</parameter>
+				<condition>
+					<hasPermission name="Degrees"/>
+				</condition>
+			</item>
+			<item name="Programs" page="admin" type="gwt">
+				<parameter name="type">program</parameter>
+				<condition>
+					<hasPermission name="Programs"/>
+				</condition>
+			</item>
+			<item name="Majors" page="admin" type="gwt">
+				<parameter name="type">major</parameter>
+				<condition>
+					<hasPermission name="Majors"/>
+				</condition>
+			</item>
+			<item name="Concentrations" page="admin" type="gwt">
+				<parameter name="type">concentration</parameter>
+				<condition>
+					<hasPermission name="Concentrations"/>
+				</condition>
+			</item>
+			<item name="Minors" page="admin" type="gwt">
+				<parameter name="type">minor</parameter>
+				<condition>
+					<hasPermission name="Minors"/>
+				</condition>
+			</item>
+			<item name="Campuses" page="admin" type="gwt">
+				<parameter name="type">campus</parameter>
+				<condition>
+					<hasPermission name="Campuses"/>
+				</condition>
+			</item>
+			<item name="Student Groups" page="admin" type="gwt">
+				<parameter name="type">group</parameter>
+				<condition>
+					<hasPermission name="StudentGroups"/>
+				</condition>
+			</item>
+			<item name="Student Accommodations" page="admin" type="gwt">
+				<parameter name="type">accommodations</parameter>
+				<condition>
+					<hasPermission name="StudentAccommodations"/>
+				</condition>
+			</item>
+			<item name="Student Advisors" page="admin" type="gwt">
+				<parameter name="type">advisor</parameter>
+				<condition>
+					<hasPermission name="StudentAdvisors"/>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Examination Statuses" page="admin" type="gwt">
+				<parameter name="type">examStatus</parameter>
+				<condition>
+					<hasPermission name="ExaminationStatuses"/>
+				</condition>
+			</item>
+			<item name="Examination Periods" page="examPeriodEdit.action">
+				<condition>
+					<hasPermission name="ExaminationPeriods"/>
+				</condition>
+			</item>
+			<item name="Event Date Mappings" page="admin" type="gwt">
+				<parameter name="type">dateMapping</parameter>
+				<condition>
+					<hasPermission name="EventDateMappings"/>
+				</condition>
+			</item>
+			<item name="Event Statuses" page="admin" type="gwt">
+				<parameter name="type">eventStatus</parameter>
+				<condition>
+					<hasPermission name="EventStatuses"/>
+				</condition>
+			</item>
+			<item name="Instructor Roles" page="admin" type="gwt">
+				<parameter name="type">instructorRole</parameter>
+				<condition>
+					<hasPermission name="InstructorRoles"/>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Learning Management Systems" page="admin" type="gwt">
+				<parameter name="type">lmsInfo</parameter>
+				<condition>
+					<hasPermission name="LearningManagementSystemInfos"/>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Data Exchange" page="dataImport.action">
+				<condition>
+					<hasPermission name="DataExchange"/>
+				</condition>
+			</item>
+			<item name="Roll Forward Session" page="rollForwardSession.action">
+				<condition>
+					<hasPermission name="SessionRollForward"/>
+				</condition>
+			</item>
+			<item name="Change Log" page="lastChanges.action">
+				<condition>
+					<hasPermission name="LastChanges"/>
+				</condition>
+			</item>
+			<item name="Task Scheduler" page="tasks" type="gwt">
+			    <condition>
+					<hasPermission name="Tasks"/>
+				</condition>
+			</item>
+			<item name="Reports" page="hql" type="gwt">
+				<parameter name="appearance">administration</parameter>
+				<condition>
+					<hasPermission name="HQLReportsAdministration"/>
+				</condition>
+			</item>
+			<item name="Point In Time Data Snapshots" page="admin" type="gwt">
+				<parameter name="type">pitds</parameter>
+				<condition>
+					<hasPermission name="PointInTimeData"/>
+				</condition>
+			</item>
+			<item name="Limit and Projection Snapshot" page="limitAndProjectionSnapshot" type="gwt">
+				<condition>
+					<hasPermission name="LimitAndProjectionSnapshot"/>
+				</condition>
+			</item>
+						
+		</menu>
+		<menu name="Solver">
+			<item name="Manage Solvers" page="manageSolvers.action">
+				<condition>
+					<hasPermission name="ManageSolvers"/>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Parameter Groups" page="admin" type="gwt">
+				<parameter name="type">solverParamGroup</parameter>
+				<condition>
+					<hasPermission name="SolverParameterGroups"/>
+				</condition>
+			</item>
+			<item name="Parameters" page="admin" type="gwt">
+				<parameter name="type">solverParamDef</parameter>
+				<condition>
+					<hasPermission name="SolverParameters"/>
+				</condition>
+			</item>
+			<item name="Configurations" page="solverSettings.action">
+				<condition>
+					<hasPermission name="SolverConfigurations"/>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Distribution Types" page="distributionTypeList.action">
+				<condition>
+					<hasPermission name="DistributionTypes"/>
+				</condition>
+			</item>
+		</menu>
+		<menu name="Other">
+			<item name="Instructional Types" page="itypeDescList.action">
+				<condition>
+					<hasPermission name="InstructionalTypes"/>
+				</condition>
+			</item>
+			<item name="Class Duration Types" page="admin" type="gwt">
+				<parameter name="type">durationType</parameter>
+				<condition>
+					<hasPermission name="DurationTypes"/>
+				</condition>
+			</item>
+			<item name="Status Types" page="deptStatusTypeEdit.action">
+				<condition>
+					<hasPermission name="StatusTypes"/>
+				</condition>
+			</item>
+			<item name="Room Types" page="admin" type="gwt">
+				<parameter name="type">roomType</parameter>
+				<condition>
+					<hasPermission name="RoomTypes"/>
+				</condition>
+			</item>
+			<item name="Room Feature Types" page="admin" type="gwt">
+				<parameter name="type">featureType</parameter>
+				<condition>
+					<hasPermission name="RoomFeatureTypes"/>
+				</condition>
+			</item>
+			<item name="Course Types" page="admin" type="gwt">
+				<parameter name="type">courseType</parameter>
+				<condition>
+					<hasPermission name="CourseTypes"/>
+				</condition>
+			</item>
+			<item name="Instructional Methods" page="admin" type="gwt">
+				<parameter name="type">instructionalMethod</parameter>
+				<condition>
+					<hasPermission name="InstructionalMethods"/>
+				</condition>
+			</item>
+			<item name="Override Types" page="admin" type="gwt">
+				<parameter name="type">overrideType</parameter>
+				<condition>
+					<hasPermission name="OverrideTypes"/>
+				</condition>
+			</item>
+			<item name="Instructor Attribute Types" page="admin" type="gwt">
+				<parameter name="type">attributeType</parameter>
+				<condition>
+					<hasPermission name="InstructorAttributeTypes"/>
+				</condition>
+			</item>
+			<item name="Scheduling Disclaimers" page="admin" type="gwt">
+				<parameter name="type">stdSchdDisclaimers</parameter>
+				<condition>
+					<hasPermission name="SchedulingDisclaimers"/>
+				</condition>
+			</item>
+			<item name="Sponsoring Organizations" page="admin" type="gwt">
+				<parameter name="type">sponsoringOrganizations</parameter>
+				<condition>
+					<hasPermission name="SponsoringOrganizations"/>
+				</condition>
+			</item>
+			<item name="Standard Notes" page="admin" type="gwt">
+				<parameter name="type">stdEvtNote</parameter>
+				<condition>
+					<hasPermission name="StandardEventNotes"/>
+				</condition>
+			</item>
+			<item name="Service Providers" page="admin" type="gwt">
+				<parameter name="type">serviceProviders</parameter>
+				<condition>
+					<hasPermission name="EventServiceProviders"/>
+				</condition>
+			</item>			
+			<item name="Attachment Types" page="admin" type="gwt">
+				<parameter name="type">attachmentType</parameter>
+				<condition>
+					<hasPermission name="AttachmentTypes"/>
+				</condition>
+			</item>
+			<item name="Preference Levels" page="admin" type="gwt">
+				<parameter name="type">preferences</parameter>
+				<condition>
+					<hasPermission name="PreferenceLevels"/>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Consent Types" page="admin" type="gwt">
+				<parameter name="type">consent</parameter>
+				<condition>
+					<hasPermission name="OfferingConsentTypes"/>
+				</condition>
+			</item>
+			<item name="Course Credit Formats" page="admin" type="gwt">
+				<parameter name="type">creditFormat</parameter>
+				<condition>
+					<hasPermission name="CourseCreditFormats"/>
+				</condition>
+			</item>
+			<item name="Course Credit Types" page="admin" type="gwt">
+				<parameter name="type">creditType</parameter>
+				<condition>
+					<hasPermission name="CourseCreditTypes"/>
+				</condition>
+			</item>
+			<item name="Course Credit Units" page="admin" type="gwt">
+				<parameter name="type">creditUnit</parameter>
+				<condition>
+					<hasPermission name="CourseCreditUnits"/>
+				</condition>
+			</item>
+			<item name="Position Types" page="admin" type="gwt">
+				<parameter name="type">position</parameter>
+				<condition>
+					<hasPermission name="PositionTypes"/>
+				</condition>
+			</item>
+			<item name="Teaching Responsibilities" page="admin" type="gwt">
+				<parameter name="type">teachingResponsibility</parameter>
+				<condition>
+					<hasPermission name="TeachingResponsibilities"/>
+				</condition>
+			</item>
+			<item name="Instructor Survey Note Types" page="admin" type="gwt">
+				<parameter name="type">instrSurveyNoteTypes</parameter>
+				<condition>
+					<hasPermission name="InstructorSurveyNoteTypes"/>
+				</condition>
+			</item>
+			<item name="Student Status Types" page="admin" type="gwt">
+				<parameter name="type">sectioning</parameter>
+				<condition>
+					<hasPermission name="StudentSchedulingStatusTypes"/>
+				</condition>
+			</item>
+			<item name="Student Group Types" page="admin" type="gwt">
+				<parameter name="type">stdgrtypes</parameter>
+				<condition>
+					<hasPermission name="StudentGroupTypes"/>
+				</condition>
+			</item>
+			<item name="Student Scheduling Rules" page="admin" type="gwt">
+				<parameter name="type">studentSchedulingRules</parameter>
+				<condition>
+					<hasPermission name="StudentSchedulingRules"/>
+				</condition>
+			</item>
+			<item name="Examination Types" page="admin" type="gwt">
+				<parameter name="type">examType</parameter>
+				<condition>
+					<hasPermission name="ExamTypes"/>
+				</condition>
+			</item>
+			<item name="Contact Categories" page="admin" type="gwt">
+				<parameter name="type">contactCategory</parameter>
+				<condition>
+					<hasPermission name="ContactCategories"/>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Roles" page="admin" type="gwt">
+				<parameter name="type">roles</parameter>
+				<condition>
+					<hasPermission name="Roles"/>
+				</condition>
+			</item>
+			<item name="Permissions" page="admin" type="gwt">
+				<parameter name="type">permissions</parameter>
+				<condition>
+					<hasPermission name="Permissions"/>
+				</condition>
+			</item>
+		</menu>
+		<menu name="Defaults">
+			<item name="Configuration" page="applicationConfig.action">
+				<condition>
+					<hasPermission name="ApplicationConfig"/>
+				</condition>
+			</item>
+			<item name="User Settings" page="admin" type="gwt">
+				<parameter name="type">defaultSettings</parameter>
+				<condition>
+					<hasPermission name="SettingsAdmin"/>
+				</condition>
+			</item>
+			<item name="Logging" page="admin" type="gwt">
+				<parameter name="type">logging</parameter>
+				<condition>
+					<hasPermission name="ApplicationConfig"/>
+				</condition>
+			</item>
+		</menu>
+		<menu name="Utilities">
+			<item name="Page Statistics" page="stats.action">
+				<condition>
+					<hasPermission name="PageStatistics"/>
+				</condition>
+			</item>
+			<item name="Access Statistics" page="accessStats.action">
+				<condition>
+					<hasPermission name="AccessStatistics"/>
+				</condition>
+			</item>
+			<item name="Hibernate Statistics" page="hibernateStats.action">
+				<condition>
+					<hasPermission name="HibernateStatistics"/>
+				</condition>
+			</item>
+			<item name="Test HQL" page="hibernateQueryTest.action">
+				<condition>
+					<hasPermission name="TestHQL"/>
+				</condition>
+			</item>
+			<item name="Clear Cache" page="$wnd.gwtClearHibernateCache();" target="eval">
+				<condition>
+					<hasPermission name="ClearHibernateCache"/>
+				</condition>
+			</item>
+			<item name="Scripts" page="scripts" type="gwt">
+				<condition>
+					<hasPermission name="Scripts"/>
+				</condition>
+			</item>
+		</menu>
+	</menu>
+	<menu name="Preferences">
+		<item name="Change Role" page="selectPrimaryRole.action?list=Y">
+				<condition>
+					<hasPermission name="HasRole"/>
+				</condition>
+			</item>
+		<item name="Switch User" page="chameleon.action">
+			<condition>
+				<hasPermission name="Chameleon"/>
+			</condition>
+		</item>
+		<item name="Settings" page="managerSettings.action">
+				<condition>
+					<hasPermission name="SettingsUser"/>
+				</condition>
+		</item>
+		<item name="Change Password" page="password" type="gwt">
+				<condition>
+					<hasPermission name="ChangePassword" authority="any"/>
+				</condition>
+		</item>
+		<item name="Event Statuses" page="admin" type="gwt">
+			<parameter name="type">eventStatus</parameter>
+			<condition>
+				<not>
+					<hasPermission name="IsAdmin"/>
+				</not>
+				<hasPermission name="EventStatuses"/>
+			</condition>
+		</item>
+		<item name="Instructor Roles" page="admin" type="gwt">
+			<parameter name="type">instructorRole</parameter>
+			<condition>
+				<not>
+					<hasPermission name="IsAdmin"/>
+				</not>
+				<hasPermission name="InstructorRoles"/>
+			</condition>
+		</item>
+		<item name="Standard Notes" page="admin" type="gwt">
+			<parameter name="type">stdEvtNote</parameter>
+			<condition>
+				<not>
+					<hasPermission name="IsAdmin"/>
+				</not>
+				<hasPermission name="StandardEventNotes"/>
+			</condition>
+		</item>
+		<item name="Service Providers" page="admin" type="gwt">
+			<parameter name="type">serviceProviders</parameter>
+			<condition>
+			    <not>
+					<hasPermission name="IsAdmin"/>
+				</not>
+				<hasPermission name="EventServiceProviders"/>
+			</condition>
+		</item>			
+		<item name="Scripts" page="scripts" type="gwt">
+			<condition>
+				<not>
+					<hasPermission name="IsAdmin"/>
+				</not>
+				<hasPermission name="Scripts"/>
+			</condition>
+		</item>
+		<item name="Clear Cache" page="$wnd.gwtClearHibernateCache();" target="eval">
+			<condition>
+				<not>
+					<hasPermission name="IsAdmin"/>
+				</not>
+				<hasPermission name="ClearHibernateCache"/>
+			</condition>
+		</item>
+		<item name="Event Defaults" page="admin" type="gwt">
+			<parameter name="type">eventDefault</parameter>
+			<condition>
+				<hasPermission name="EventDefaults"/>
+			</condition>
+		</item>
+		<item name="Examination Statuses" page="admin" type="gwt">
+			<parameter name="type">examStatus</parameter>
+			<condition>
+				<not>
+					<hasPermission name="IsAdmin"/>
+				</not>
+				<hasPermission name="ExaminationStatuses"/>
+			</condition>
+		</item>
+		<item name="Examination Periods" page="examPeriodEdit.action">
+			<condition>
+				<not>
+					<hasPermission name="IsAdmin"/>
+				</not>
+				<hasPermission name="ExaminationPeriods"/>
+			</condition>
+		</item>
+	</menu>
+	<menu name="Help">
+		<condition>
+			<isAuthenticated/>
+			<not>
+				<hasRole name="Anonymous"/>
+			</not>
+		</condition>
+		<item name="Page Documentation" page="PAGE_HELP" type="page" target="tab">
+			<condition>
+				<propertyEquals name="tmtbl.wiki.help" value="true"/>
+				<hasProperty name="tmtbl.wiki.url"/>
+			</condition>
+		</item>
+		<menu name="Manuals">
+			<item name="Course Timetabling Data Entry" page="tmtbl.help.manual.input_data" type="property" target="tab">
+				<condition>
+					<or>
+						<hasPermission name="InstructionalOfferings" check="false"/>
+						<hasPermission name="Classes" check="false"/>
+					</or>
+				</condition>
+			</item>
+			<item name="Course Timetabling Solver" page="tmtbl.help.manual.solver" type="property" target="tab">
+				<condition>
+					<or>
+						<hasPermission name="CourseTimetabling" check="false"/>
+						<hasPermission name="CourseTimetablingAudit" check="false"/>
+						<hasPermission name="Timetables" check="false"/>
+					</or>
+				</condition>
+			</item>
+			<item name="Examination Timetabling" page="tmtbl.help.manual.exams" type="property" target="tab">
+				<condition>
+					<hasPermission name="Examinations" check="false"/>
+				</condition>
+			</item>
+			<item name="Event Management" page="tmtbl.help.manual.events" type="property" target="tab">
+				<condition>
+					<hasPermission name="Events" authority="any" check="false"/>
+				</condition>
+			</item>
+			<item name="Event Administration" page="tmtbl.help.manual.events_admin" type="property" target="tab">
+				<condition>
+					<hasPermission name="EventStatuses" authority="any" check="false"/>
+				</condition>
+			</item>
+			<item name="Student Scheduling" page="tmtbl.help.manual.students" type="property" target="tab">
+			    <condition>
+					<hasPermission name="StudentSectioningSolver" authority="any" check="false"/>
+				</condition>
+			</item>
+			<item name="Student Scheduling Assistant" page="tmtbl.help.manual.schedulingAssistant" type="property" target="tab">
+			    <condition>
+					<hasPermission name="SchedulingAssistant" authority="any" check="false"/>
+				</condition>
+			</item>
+			<item name="Student Course Requests" page="tmtbl.help.manual.courseRequests" type="property" target="tab">
+			    <condition>
+					<hasPermission name="CourseRequests" authority="any" check="false"/>
+				</condition>
+			</item>
+			<item name="Student Scheduling Dashboard" page="tmtbl.help.manual.schedulingDashboard" type="property" target="tab">
+			    <condition>
+					<hasPermission name="SchedulingDashboard" authority="any" check="false"/>
+				</condition>
+			</item>
+			<item name="Instructor Scheduling" page="tmtbl.help.manual.instructorScheduling" type="property" target="tab">
+				<condition>
+					<or>
+						<hasPermission name="InstructorScheduling" check="false"/>
+						<hasPermission name="InstructorSchedulingSolver" check="false"/>
+					</or>
+				</condition>
+			</item>
+			<item name="Administration" page="tmtbl.help.manual.administration" type="property" target="tab">
+				<condition>
+					<or>
+						<hasPermission name="AcademicSessions" check="false"/>
+					</or>
+				</condition>
+			</item>
+			<separator/>
+			<item name="Other Documentation" page="tmtbl.help.manual.other" type="property" target="tab"/>
+		</menu>
+		<item name="Tips &amp; Tricks" page="tmtbl.help.tricks" type="property" target="tab"/>
+		<item name="FAQ" page="tmtbl.help.faq" type="property" target="tab"/>
+		<item name="Release Notes" page="tmtbl.help.release_notes" type="property" target="tab"/>
+		<item name="Contact Us" page="inquiry.action">
+			<condition>
+				<or>
+					<hasProperty name="unitime.email.notif"/>
+					<hasProperty name="unitime.email.inquiry"/>
+				</or>
+				<hasPermission name="Inquiry"/>
+			</condition>
+		</item>
+	</menu>
+	<item name="Log Out" page="logout.action">
+		<condition>
+			<isAuthenticated/>
+			<not>
+				<hasRole name="Anonymous"/>
+			</not>
+		</condition>
+	</item>
+	<item name="Log In" page="login.action">
+		<condition>
+			<or>
+				<not>
+					<isAuthenticated/>
+				</not>
+				<hasRole name="Anonymous"/>
+			</or>
+		</condition>
+	</item>
+</unitime-menu>

@@ -1,0 +1,295 @@
+/*
+ * Licensed to The Apereo Foundation under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for
+ * additional information regarding copyright ownership.
+ *
+ * The Apereo Foundation licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+*/
+package org.unitime.timetable.server.solver;
+
+import java.io.Serializable;
+import java.util.BitSet;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import org.unitime.localization.impl.Localization;
+import org.unitime.timetable.defaults.ApplicationProperty;
+import org.unitime.timetable.gwt.server.Query;
+import org.unitime.timetable.gwt.shared.FilterInterface;
+import org.unitime.timetable.model.DatePattern;
+import org.unitime.timetable.model.ItypeDesc;
+import org.unitime.timetable.model.Location;
+import org.unitime.timetable.model.RoomFeatureType;
+import org.unitime.timetable.model.Session;
+import org.unitime.timetable.model.dao.ItypeDescDAO;
+import org.unitime.timetable.model.dao.LocationDAO;
+import org.unitime.timetable.model.dao.RoomFeatureTypeDAO;
+import org.unitime.timetable.server.solver.TimetableGridHelper.DisplayMode;
+import org.unitime.timetable.server.solver.TimetableGridHelper.ResourceType;
+import org.unitime.timetable.util.Constants;
+import org.unitime.timetable.util.DateUtils;
+import org.unitime.timetable.util.NameFormat;
+
+/**
+ * @author Tomas Muller
+ */
+public class TimetableGridContext implements Serializable {
+	private static final long serialVersionUID = 1L;
+	private String iFilter;
+	private int iStartDayDayOfWeek;
+	private int iResourceType;
+	private int iFirstDay, iFirstSessionDay;
+	private int iBgMode, iDispMode;
+	private boolean iShowEvents;
+	private int iFirstSlot, iLastSlot, iDayCode;
+	private BitSet iPattern;
+	private float iNrWeeks;
+	private int iSlotsPerWeek;
+	private Date iFirstDate;
+	private boolean iShowInstructor, iShowTime, iShowPreference, iShowFreeTimes, iShowDate;
+	private Date iSessionStartDate, iSessionEndDate;
+	private boolean iShowCrossLists, iShowClassSuffix, iShowConfigName, iShowClassNameTwoLines, iShowCourseTitle;
+	private String iLocale;
+	private String iInstructorNameFormat = NameFormat.SHORT.reference();
+	private int iWeekOffset = 0;
+	private Long iSessionId = null;
+	private Query iClassFilter = null;
+	private Query iRoomFilter = null;
+	
+	public TimetableGridContext() {}
+	
+	public TimetableGridContext(FilterInterface filter, Session session) {
+        iWeekOffset = ApplicationProperty.TimeGridFirstDayOfWeek.intValue();
+		iLocale = Localization.getLocale();
+		DatePattern dp = session.getDefaultDatePatternNotNull();
+		if (dp == null)
+			throw new RuntimeException("No default date pattern is defined for " + session.getLabel() + ". Use the <a href='sessionEdit.action?op=editSession&sessionId=" + session.getUniqueId() + "'>Edit Academic Session</a> page to set a default date pattern.");
+		iFilter = filter.getParameterValue("filter", "");
+		String cf = filter.getParameterValue("classFilter", "");
+		if (cf != null && !cf.isEmpty())
+			iClassFilter = new Query(cf);
+		String rf = filter.getParameterValue("roomFilter", "");
+		if (rf != null && !rf.isEmpty())
+			iRoomFilter = new Query(rf);
+		iStartDayDayOfWeek = Constants.getDayOfWeek(DateUtils.getDate(1, session.getPatternStartMonth(), session.getSessionStartYear()));
+		int week = Integer.parseInt(filter.getParameterValue("weeks", "-100"));
+		iFirstDay = (week == -100 ? -1 : DateUtils.getFirstDayOfWeek(session.getSessionStartYear(), week) - session.getDayOfYear(1, session.getPatternStartMonth()) - 1 + iWeekOffset);
+		iResourceType = Integer.valueOf(filter.getParameterValue("resource", "0"));
+		iBgMode = Integer.valueOf(filter.getParameterValue("background", "0"));
+		iShowEvents = "1".equals(filter.getParameterValue("showEvents"));
+		String[] times = filter.getParameterValue("times", "0|288|6").split("\\|");
+		iFirstSlot = Integer.parseInt(times[0]);
+		int step = Integer.parseInt(times[2]);
+		int nrTimes = (Integer.parseInt(times[1]) - iFirstSlot) / step;
+		iLastSlot = iFirstSlot + (step * nrTimes) - 1;
+		iDayCode = 0;
+		int nrWeekDays = 0;
+		String bitmap = filter.getParameterValue("days", "1111111");
+		for (int i = 0; i < bitmap.length() && i < 7; i++)
+			if (bitmap.charAt(i) == '1') {
+				iDayCode += Constants.DAY_CODES[i];
+				nrWeekDays ++;
+			}
+		iPattern = dp.getPatternBitSet();
+		iNrWeeks = dp.getEffectiveNumberOfWeeks();
+		
+		if (iFirstDay < 0 && ApplicationProperty.TimetableGridUtilizationSkipHolidays.isTrue()) {
+			int nrDays = 0;
+			int idx = -1;
+			int daysInWeek[] = new int[] {0, 0, 0, 0, 0, 0, 0};
+	        while ((idx = iPattern.nextSetBit(1 + idx)) >= 0) {
+	        	int dow = ((idx + iStartDayDayOfWeek) % 7);
+	        	if ((iDayCode & Constants.DAY_CODES[dow]) != 0) {
+	        		nrDays ++;
+	        		daysInWeek[dow] ++;
+	        	}
+	        }
+	        float weekDays = 1f / nrWeekDays;
+	        if (weekDays >= 0.2f) {
+	        	iNrWeeks = weekDays * nrDays;
+	        } else {
+	        	iNrWeeks = 0.2f * (daysInWeek[0] + daysInWeek[1] + daysInWeek[2] + daysInWeek[3] + daysInWeek[4]);
+	        }
+		}
+		iSlotsPerWeek = (iLastSlot - iFirstSlot + 1) * nrWeekDays;
+		
+		int startWeek = DateUtils.getWeek(session.getSessionBeginDateTime()) - ApplicationProperty.SessionNrExcessDays.intValue()/7;
+		iFirstDate = DateUtils.getStartDate(session.getSessionStartYear(), startWeek);
+		iFirstSessionDay = DateUtils.getFirstDayOfWeek(session.getSessionStartYear(),startWeek) - session.getDayOfYear(1,session.getPatternStartMonth()) - 1;
+		
+		iShowInstructor = "1".equals(filter.getParameterValue("showInstructors"));
+		iShowTime = "1".equals(filter.getParameterValue("showTimes"));
+		iShowPreference = "1".equals(filter.getParameterValue("showPreferences"));
+		iShowFreeTimes = "1".equals(filter.getParameterValue("showFreeTimes"));
+		iShowDate = "-100".equals(filter.getParameterValue("weeks"));
+		iDispMode = Integer.parseInt(filter.getParameterValue("dispMode", "0"));
+		
+		Calendar startDateCal = Calendar.getInstance(Locale.US);
+        startDateCal.setTime(DateUtils.getDate(1, session.getStartMonth(), session.getSessionStartYear()));
+        startDateCal.set(Calendar.HOUR_OF_DAY, 0);
+        startDateCal.set(Calendar.MINUTE, 0);
+        startDateCal.set(Calendar.SECOND, 0);
+        iSessionStartDate = startDateCal.getTime();
+        Calendar endDateCal = Calendar.getInstance(Locale.US);
+        endDateCal.setTime(DateUtils.getDate(0, session.getEndMonth() + 1, session.getSessionStartYear()));
+        endDateCal.set(Calendar.HOUR_OF_DAY, 23);
+        endDateCal.set(Calendar.MINUTE, 59);
+        endDateCal.set(Calendar.SECOND, 59);
+        iSessionEndDate = endDateCal.getTime();
+        
+        iShowCrossLists = ApplicationProperty.TimeGridShowCrosslists.isTrue();
+        iShowClassSuffix = ApplicationProperty.SolverShowClassSufix.isTrue();
+        iShowConfigName = ApplicationProperty.SolverShowConfiguratioName.isTrue();
+        iShowClassNameTwoLines = ApplicationProperty.TimeGridShowNameInTwoLines.isTrue();
+        iShowCourseTitle = "1".equals(filter.getParameterValue("showTitles"));
+        iSessionId = session.getUniqueId();
+	}
+	
+	public String getFilter() { return iFilter; }
+	
+	public Query getClassFilter() { return iClassFilter; }
+	
+	public Query getRoomFilter() { return iRoomFilter; }
+	
+	public int getResourceType() { return iResourceType; }
+	
+	public int getFirstDay() { return iFirstDay; }
+	
+	public int getFirstSessionDay() { return iFirstSessionDay; }
+	
+	public int getBgMode() { return iBgMode; }
+	
+	public boolean isShowEvents() { return iShowEvents; }
+	
+	public int getStartDayDayOfWeek() { return iStartDayDayOfWeek; }
+	
+	public int getFirstSlot() { return iFirstSlot; }
+	
+	public int getLastSlot() { return iLastSlot; }
+	
+	public int getDayCode() { return iDayCode; }
+	
+	public BitSet getDefaultDatePattern() { return iPattern; }
+	
+	public float getNumberOfWeeks() { return (iFirstDay >= 0 ? 1.0f : iNrWeeks); }
+	
+	public int getSlotsPerWeek() { return iSlotsPerWeek; }
+	
+	public Date getFirstDate() { return iFirstDate; }
+	
+	public boolean isShowInstructor() { return iShowInstructor; }
+	public boolean isShowTime() { return iShowTime; }
+	public boolean isShowPreference() { return iShowPreference; }
+	public boolean isShowFreeTimes() { return iShowFreeTimes && iResourceType <= 1; }
+	public boolean isShowRoom() { return iResourceType != ResourceType.ROOM.ordinal(); }
+	public boolean isShowDate() { return iShowDate; }
+	
+	public int getDisplayMode() { return iDispMode; }
+	public boolean isVertical() { return iDispMode == DisplayMode.PerWeekVertical.ordinal(); }
+	
+	public Date getSessionStartDate() { return iSessionStartDate; }
+	public Date getSessionEndDate() { return iSessionEndDate; }
+	
+	public boolean isShowCrossLists() { return iShowCrossLists; }
+	public boolean isShowClassSuffix() { return iShowClassSuffix; }
+	public boolean isShowConfigName() { return iShowConfigName; }
+	public boolean isShowClassNameTwoLines() { return iShowClassNameTwoLines; }
+	public boolean isShowCourseTitle() { return iShowCourseTitle; }
+	
+	public void ensureLocalizationIsSet() { Localization.setLocale(iLocale); }
+	
+	public String getInstructorNameFormat() { return iInstructorNameFormat; }
+	public void setInstructorNameFormat(String format) { iInstructorNameFormat = format; }
+	
+	public int getWeekOffset() { return iWeekOffset; }
+	
+	private HashMap<Integer, String> iInstructionalTypeColors = null;
+    public static String[] sBgColors = new String[] {
+            "rgb(102,140,217)",
+            "rgb(76,176,82)",
+        	"rgb(242,166,64)",
+        	"rgb(224,194,64)",
+        	"rgb(230,115,153)",
+        	"rgb(179,115,179)",
+        	"rgb(101,173,137)",
+        	"rgb(140,102,217)",
+        	"rgb(102,140,179)",
+        	"rgb(89,191,179)",
+        	"rgb(140,191,64)",
+        	"rgb(191,191,77)",
+        	"rgb(230,128,77)",
+        	"rgb(190,148,148)",
+        	"rgb(169,146,169)",
+        	"rgb(137,151,165)",
+        	"rgb(148,162,190)",
+        	"rgb(133,170,165)",
+        	"rgb(167,167,125)",
+        	"rgb(196,168,131)",
+        	"rgb(217,102,102)"};
+    public String getInstructionalTypeColor(Integer id) {
+		if (id == null) return null;
+    	if (iInstructionalTypeColors == null) {
+    		iInstructionalTypeColors = new HashMap<Integer, String>();
+    		List<ItypeDesc> itypes = ItypeDescDAO.getInstance().getSession().createQuery(
+    				"from ItypeDesc where " +
+    				"itype in (select s.itype.itype from SchedulingSubpart s where s.instrOfferingConfig.instructionalOffering.session.uniqueId = :sessionId) " +
+    				"order by itype", ItypeDesc.class
+    				).setParameter("sessionId", iSessionId).list();
+    		for (ItypeDesc it: itypes) {
+    			if (it.getParent() == null) {
+    				String color = sBgColors[iInstructionalTypeColors.size() % sBgColors.length];
+    				iInstructionalTypeColors.put(it.getItype(), color);
+    			}
+    		}
+    		for (ItypeDesc it: itypes) {
+    			if (it.getParent() != null)
+    				iInstructionalTypeColors.put(it.getItype(), getInstructionalTypeColor(it.getParent().getItype()));
+    		}
+    	}
+		String color = iInstructionalTypeColors.get(id);
+		if (color == null) {
+			color = sBgColors[iInstructionalTypeColors.size() % sBgColors.length];
+			iInstructionalTypeColors.put(id, color);
+		}
+		return color;
+	}
+    
+    private transient Map<Long, Location> iRoomCache = null;
+    public Location getLocation(Long id) {
+    	if (iRoomCache == null) iRoomCache = new HashMap<Long, Location>();
+    	Location loc = iRoomCache.get(id);
+    	if (loc == null) {
+    		loc = LocationDAO.getInstance().get(id);
+    		if (loc != null) iRoomCache.put(id, loc);
+    	}
+    	return loc;
+    }
+    
+    private Set<String> iFeatureTypes = null;
+    public Set<String> getRoomFeatureTypes() {
+    	if (iFeatureTypes == null) {
+    		iFeatureTypes = new HashSet<String>();
+    		for (RoomFeatureType ft: RoomFeatureTypeDAO.getInstance().findAll())
+    			iFeatureTypes.add(ft.getReference().toLowerCase().replace(' ', '_'));
+    	}
+    	return iFeatureTypes;
+    }
+}
