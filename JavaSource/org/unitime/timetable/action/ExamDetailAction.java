@@ -93,7 +93,7 @@ public class ExamDetailAction extends PreferencesAction2<ExamEditForm> {
 	public String getOp2() { return op2; }
 	public void setOp2(String op2) { this.op2 = op2; }
 	
-
+    //Duplication here as well
 	public String execute() throws Exception {
 		if (ApplicationProperty.LegacyExaminationDetail.isFalse()) {
     		String url = "examination";
