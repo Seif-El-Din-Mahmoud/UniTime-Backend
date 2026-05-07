@@ -284,7 +284,7 @@ public class DistributionPrefsAction extends UniTimeAction<DistributionPrefsForm
         if (op!=null && op.equals("reload")) {
             // Subject area changed
             if (reloadCause!=null && reloadCause.equals("subjectArea")) {
-				//to be fixed
+				//to be fixed...
 	            int index = Integer.parseInt(reloadId);
 	            Debug.debug("subj area changed ... " + reloadId + " - " + form.getSubjectArea(index));
 	
@@ -296,7 +296,7 @@ public class DistributionPrefsAction extends UniTimeAction<DistributionPrefsForm
             
             // Move Distribution object up one level
             if (reloadCause!=null && reloadCause.equals("moveUp")) {
-				//to be fixed
+				//to be fixed...
 	            int index = Integer.parseInt(reloadId);
 	            Debug.debug("moving up ... " + reloadId);
 	            form.swap(index, index-1);
@@ -304,7 +304,7 @@ public class DistributionPrefsAction extends UniTimeAction<DistributionPrefsForm
             
             // Move Distribution object down one level
             if (reloadCause!=null && reloadCause.equals("moveDown")) {
-				//to be fixed
+				//to be fixed...
 	            int index = Integer.parseInt(reloadId);
 	            Debug.debug("moving down ... " + reloadId);
 	            form.swap(index, index+1);
