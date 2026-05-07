@@ -308,6 +308,7 @@ public class InstructorDetailAction extends PreferencesAction2<InstructorEditFor
 			    		assignedDate = ca.getAssignedTime().getDatePatternHtml();
 		    		}
 					if (ca.getAssignedRoom() != null) {
+						// To be modified...
 						for (int i=0;i<ca.getAssignedRoom().length;i++) {
 							if (i>0) assignedRoom += ", ";
 							assignedRoom += ca.getAssignedRoom()[i].toHtml(false,false,true);

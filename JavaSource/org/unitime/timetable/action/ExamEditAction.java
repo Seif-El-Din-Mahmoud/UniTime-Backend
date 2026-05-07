@@ -124,7 +124,7 @@ public class ExamEditAction extends PreferencesAction2<ExamEditForm> {
 	public String getFirstType() { return firstType; }
 	public void setFirstType(String firstType) { this.firstType = firstType; }
 	
-
+    // Duplication here in this class
 	public String execute() throws Exception {
 		if (ApplicationProperty.LegacyExaminationEdit.isFalse()) {
     		String url = (getExamId() == null || Boolean.TRUE.equals(isClone()) ? "examAdd" : "examEdit");
