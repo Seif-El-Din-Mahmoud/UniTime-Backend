@@ -131,6 +131,10 @@ public class ExamEditAction extends PreferencesAction2<ExamEditForm> {
     		boolean first = true;
     		for (Enumeration<String> e = getRequest().getParameterNames(); e.hasMoreElements(); ) {
     			String param = e.nextElement();
+                //  Unsafe parameter forwarding (no whitelist)
+                // All request parameters are appended to redirect URL without validation.
+                // This can lead to parameter injection and unintended behavior.
+                // Replace with explicit allowed parameter mapping.
     			url += (first ? "?" : "&") + param + "=" + URLEncoder.encode(getRequest().getParameter(param), "utf-8");
     			first = false;
     		}
