@@ -71,6 +71,7 @@ import org.unitime.timetable.model.dao.SchedulingSubpartDAO;
 import org.unitime.timetable.model.dao.SessionDAO;
 import org.unitime.timetable.security.rights.Right;
 import org.unitime.timetable.util.Constants;
+import org.unitime.timetable.util.ExamUtil;
 import org.unitime.timetable.util.LookupTables;
 import org.unitime.timetable.webutil.BackTracker;
 import org.unitime.timetable.webutil.Navigation;
@@ -126,18 +127,12 @@ public class ExamEditAction extends PreferencesAction2<ExamEditForm> {
 	
 
 	public String execute() throws Exception {
-		if (ApplicationProperty.LegacyExaminationEdit.isFalse()) {
-    		String url = (getExamId() == null || Boolean.TRUE.equals(isClone()) ? "examAdd" : "examEdit");
-    		boolean first = true;
-    		for (Enumeration<String> e = getRequest().getParameterNames(); e.hasMoreElements(); ) {
-    			String param = e.nextElement();
-    			url += (first ? "?" : "&") + param + "=" + URLEncoder.encode(getRequest().getParameter(param), "utf-8");
-    			first = false;
-    		}
-    		response.sendRedirect(url);
-			return null;
-    	}
-		
+        if (ApplicationProperty.LegacyExaminationEdit.isFalse()) {
+            String baseUrl = (getExamId() == null || Boolean.TRUE.equals(isClone()) ? "examAdd" : "examEdit");
+            String url = ExamUtil.buildRedirectUrl(baseUrl, getRequest());
+            response.sendRedirect(url);
+            return null;
+        }
 		if (form == null) {
 			form = new ExamEditForm();
 			form.reset();
