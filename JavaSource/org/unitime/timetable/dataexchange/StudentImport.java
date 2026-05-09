@@ -212,12 +212,10 @@ public class StudentImport extends BaseImport {
 					updatedStudents.add(student.getUniqueId());
 				}
 				if (!toDeleteIds.isEmpty()) {
-					getHibSession().createQuery(
-									"delete from Student s where s.uniqueId in :ids")
+					getHibSession().createQuery("delete from Student s where s.uniqueId in :ids")
 							.setParameter("ids", toDeleteIds)
 							.executeUpdate();
-					// Must clear cache after bulk HQL — Hibernate does
-					// not track bulk operations in its first-level cache
+					// Must clear cache after bulk HQL, Hibernate does not track bulk operations in its first-level cache
 					getHibSession().clear();
 				}
 			}
