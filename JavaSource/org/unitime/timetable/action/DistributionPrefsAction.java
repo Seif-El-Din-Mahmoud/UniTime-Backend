@@ -123,7 +123,29 @@ public class DistributionPrefsAction extends UniTimeAction<DistributionPrefsForm
 	public void setDeleteType(String deleteType) { this.deleteType = deleteType; }
 	public String getDp() { return distPrefId; }
 	public void setDp(String distPrefId) { this.distPrefId = distPrefId; }
-	
+
+	/**
+	 * Safely parses reloadId into an integer index.
+	 * Throws a meaningful exception instead of crashing with
+	 * a raw NumberFormatException if the value is invalid.
+	 *
+	 * @param reloadId the string value from the HTTP request
+	 * @return the parsed integer index
+	 * @throws Exception if reloadId is null, empty, or not a valid number
+	 */
+	private int safeParseIndex(String reloadId) throws Exception {
+		if (reloadId == null || reloadId.trim().isEmpty()) {
+			throw new Exception(
+					"Reload ID is missing. Cannot process reload action.");
+		}
+		try {
+			return Integer.parseInt(reloadId.trim());
+		} catch (NumberFormatException e) {
+			throw new Exception(
+					"Invalid reload ID '" + reloadId + "'. " +
+							"Expected a numeric index value.");
+		}
+	}
     /** 
      * Method execute
      */
@@ -284,7 +306,7 @@ public class DistributionPrefsAction extends UniTimeAction<DistributionPrefsForm
         if (op!=null && op.equals("reload")) {
             // Subject area changed
             if (reloadCause!=null && reloadCause.equals("subjectArea")) {
-	            int index = Integer.parseInt(reloadId);
+				int index = safeParseIndex(reloadId);
 	            Debug.debug("subj area changed ... " + reloadId + " - " + form.getSubjectArea(index));
 	
 	            // Reset values to blank
@@ -295,14 +317,14 @@ public class DistributionPrefsAction extends UniTimeAction<DistributionPrefsForm
             
             // Move Distribution object up one level
             if (reloadCause!=null && reloadCause.equals("moveUp")) {
-	            int index = Integer.parseInt(reloadId);
+				int index = safeParseIndex(reloadId);
 	            Debug.debug("moving up ... " + reloadId);
 	            form.swap(index, index-1);
             }
             
             // Move Distribution object down one level
             if (reloadCause!=null && reloadCause.equals("moveDown")) {
-	            int index = Integer.parseInt(reloadId);
+				int index = safeParseIndex(reloadId);
 	            Debug.debug("moving down ... " + reloadId);
 	            form.swap(index, index+1);
             }

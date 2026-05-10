@@ -307,14 +307,14 @@ public class InstructorDetailAction extends PreferencesAction2<InstructorEditFor
 			    		assignedTime = ca.getAssignedTime().toHtml(false, false, true, true);
 			    		assignedDate = ca.getAssignedTime().getDatePatternHtml();
 		    		}
-					if (ca.getAssignedRoom() != null) {
-						// To be modified...
-						for (int i=0;i<ca.getAssignedRoom().length;i++) {
-							if (i>0) assignedRoom += ", ";
-							assignedRoom += ca.getAssignedRoom()[i].toHtml(false,false,true);
+				if (ca.getAssignedRoom() != null) {
+					for (Object[] room : ca.getAssignedRoom()) {
+						if (room != null && room.length > 0) { // makes sure that there is at least one room assigned and not out of bounds in array index
+							if (assignedRoom.length() > 0) assignedRoom += ", ";
+							assignedRoom += room[0].toHtml(false, false, true);
 						}
 					}
-		    	}
+				}
 		    	String icon = null, bgColor = null, title = null;
 		    	if (!c.isCancelled() && ci.isLead()) {
 		        	Set<AssignmentInfo> conflicts = null;
