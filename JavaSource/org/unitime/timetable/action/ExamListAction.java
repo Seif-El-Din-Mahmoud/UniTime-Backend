@@ -63,10 +63,7 @@ import org.unitime.timetable.model.dao.SubjectAreaDAO;
 import org.unitime.timetable.solver.exam.ExamAssignmentProxy;
 import org.unitime.timetable.solver.exam.ui.ExamAssignment;
 import org.unitime.timetable.solver.exam.ui.ExamRoomInfo;
-import org.unitime.timetable.util.Constants;
-import org.unitime.timetable.util.ExportUtils;
-import org.unitime.timetable.util.IdValue;
-import org.unitime.timetable.util.LookupTables;
+import org.unitime.timetable.util.*;
 import org.unitime.timetable.webutil.BackTracker;
 import org.unitime.timetable.webutil.Navigation;
 import org.unitime.timetable.webutil.PdfWebTable;
@@ -95,17 +92,12 @@ public class ExamListAction extends UniTimeAction<ExamListForm> {
 	public void setOrd(String ord) { this.ord = ord; }
 
     public String execute() throws Exception {
-    	if (ApplicationProperty.LegacyExaminations.isFalse()) {
-    		String url = "examinations";
-    		boolean first = true;
-    		for (Enumeration<String> e = getRequest().getParameterNames(); e.hasMoreElements(); ) {
-    			String param = e.nextElement();
-    			url += (first ? "?" : "&") + param + "=" + URLEncoder.encode(getRequest().getParameter(param), "utf-8");
-    			first = false;
-    		}
-    		response.sendRedirect(url);
-			return null;
-    	}
+        if (ApplicationProperty.LegacyExaminationDetail.isFalse()) {
+            String baseUrl = "examination";
+            String url = ExamUtil.buildRedirectUrl(baseUrl, getRequest());
+            response.sendRedirect(url);
+            return null;
+        }
         sessionContext.checkPermission(Right.Examinations);
         
         if (getForm() == null) setForm(new ExamListForm());

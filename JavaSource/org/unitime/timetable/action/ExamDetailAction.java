@@ -61,6 +61,7 @@ import org.unitime.timetable.security.rights.Right;
 import org.unitime.timetable.solver.WebSolver;
 import org.unitime.timetable.solver.exam.ExamAssignmentProxy;
 import org.unitime.timetable.solver.exam.ui.ExamAssignmentInfo;
+import org.unitime.timetable.util.ExamUtil;
 import org.unitime.timetable.util.LookupTables;
 import org.unitime.timetable.webutil.BackTracker;
 import org.unitime.timetable.webutil.ExamDistributionPrefsTableBuilder;
@@ -95,17 +96,12 @@ public class ExamDetailAction extends PreferencesAction2<ExamEditForm> {
 	
     //Duplication here as well too
 	public String execute() throws Exception {
-		if (ApplicationProperty.LegacyExaminationDetail.isFalse()) {
-    		String url = "examination";
-    		boolean first = true;
-    		for (Enumeration<String> e = getRequest().getParameterNames(); e.hasMoreElements(); ) {
-    			String param = e.nextElement();
-    			url += (first ? "?" : "&") + param + "=" + URLEncoder.encode(getRequest().getParameter(param), "utf-8");
-    			first = false;
-    		}
-    		response.sendRedirect(url);
-			return null;
-    	}
+        if (ApplicationProperty.LegacyExaminationDetail.isFalse()) {
+            String baseUrl = "examination";
+            String url = ExamUtil.buildRedirectUrl(baseUrl, getRequest());
+            response.sendRedirect(url);
+            return null;
+        }
 		if (form == null) form = new ExamEditForm();
 		
 		super.execute();
