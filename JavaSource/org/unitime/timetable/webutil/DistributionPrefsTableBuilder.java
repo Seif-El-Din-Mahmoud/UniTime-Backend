@@ -81,81 +81,59 @@ public class DistributionPrefsTableBuilder {
 		    return "";
 		if (subjectAreaId.equals(Constants.ALL_OPTION_VALUE) || subjectAreaId.equals("-1"))
 		    subjectAreaId = null;
-		
-		Long subjAreaId = null;
-		if (subjectAreaId!=null && subjectAreaId.length()>0) {
-			subjAreaId = Long.valueOf(subjectAreaId); 
-		}
-		
-        Collection prefs = new HashSet();
-        for (Department d: Department.getUserDepartments(context.getUser())) {
-			prefs.addAll(DistributionPref.getPreferences(context.getUser().getCurrentAcademicSessionId(), d.getUniqueId(), true, null, subjAreaId, (courseNbr==null || courseNbr.length()==0 ? null : courseNbr)));
-            prefs.addAll(DistributionPref.getInstructorPreferences(context.getUser().getCurrentAcademicSessionId(),d.getUniqueId(),subjAreaId, (courseNbr==null || courseNbr.length()==0 ? null : courseNbr)));
-		}
-		
-		return toHtmlTable(request, context, prefs, true); 
+
+		Long subjAreaId = parseSubjAreaId(subjectAreaId);
+		Collection prefs = collectDistPrefs(context, subjAreaId, courseNbr);
+		return toHtmlTable(request, context, prefs, true);
 	}
 
 	public void getAllDistPrefsTableForCurrentUserAsPdf(OutputStream out, SessionContext context, String subjectAreaId, String courseNbr) throws Exception {
-
-		if (subjectAreaId.equals(Constants.BLANK_OPTION_VALUE))
-            subjectAreaId = null;
-        else if (subjectAreaId.equals(Constants.ALL_OPTION_VALUE))
-            subjectAreaId = null;
-
-		String title = null;
-		
-		Long subjAreaId = null;
-		if (subjectAreaId!=null && subjectAreaId.length()>0) {
-			subjAreaId = Long.valueOf(subjectAreaId);
-			SubjectArea area = (SubjectAreaDAO.getInstance()).get(subjAreaId);
-			title = area.getSubjectAreaAbbreviation()+(courseNbr==null?"":" "+courseNbr);
-		}
-		
-        Collection prefs = new HashSet();
-		for (Department d: Department.getUserDepartments(context.getUser())) {
-            prefs.addAll(DistributionPref.getPreferences(context.getUser().getCurrentAcademicSessionId(), d.getUniqueId(), true, null, subjAreaId, (courseNbr==null || courseNbr.length()==0 ? null : courseNbr)));
-            prefs.addAll(DistributionPref.getInstructorPreferences(context.getUser().getCurrentAcademicSessionId(),d.getUniqueId(),subjAreaId, (courseNbr==null || courseNbr.length()==0 ? null : courseNbr)));
-        }
-		
-		Session session = SessionDAO.getInstance().get(context.getUser().getCurrentAcademicSessionId());
-		if (title==null)
-			title = session.getLabel()+" "+MSG.pageTitleDistributionPreferencesPdf();
-		else
-			title += " - "+session.getLabel()+" "+MSG.pageTitleDistributionPreferencesPdf();
-		
-		toPdfTable(out, context, prefs, title); 
+		subjectAreaId = normalizeExportSubjectAreaId(subjectAreaId);
+		Long subjAreaId = parseSubjAreaId(subjectAreaId);
+		Collection prefs = collectDistPrefs(context, subjAreaId, courseNbr);
+		String title = buildExportTitle(context, subjAreaId, courseNbr);
+		toPdfTable(out, context, prefs, title);
 	}
-	
+
 	public void getAllDistPrefsTableForCurrentUserAsCsv(PrintWriter out, SessionContext context, String subjectAreaId, String courseNbr) throws Exception {
+		subjectAreaId = normalizeExportSubjectAreaId(subjectAreaId);
+		Long subjAreaId = parseSubjAreaId(subjectAreaId);
+		Collection prefs = collectDistPrefs(context, subjAreaId, courseNbr);
+		String title = buildExportTitle(context, subjAreaId, courseNbr);
+		toCsvTable(out, context, prefs, title);
+	}
 
-		if (subjectAreaId.equals(Constants.BLANK_OPTION_VALUE))
-            subjectAreaId = null;
-        else if (subjectAreaId.equals(Constants.ALL_OPTION_VALUE))
-            subjectAreaId = null;
+	private String normalizeExportSubjectAreaId(String subjectAreaId) {
+		if (subjectAreaId.equals(Constants.BLANK_OPTION_VALUE)) return null;
+		if (subjectAreaId.equals(Constants.ALL_OPTION_VALUE)) return null;
+		return subjectAreaId;
+	}
 
-		String title = null;
-		
-		Long subjAreaId = null;
-		if (subjectAreaId!=null && subjectAreaId.length()>0) {
-			subjAreaId = Long.valueOf(subjectAreaId);
-			SubjectArea area = (SubjectAreaDAO.getInstance()).get(subjAreaId);
-			title = area.getSubjectAreaAbbreviation()+(courseNbr==null?"":" "+courseNbr);
+	private Long parseSubjAreaId(String subjectAreaId) {
+		if (subjectAreaId == null || subjectAreaId.length() == 0) return null;
+		return Long.valueOf(subjectAreaId);
+	}
+
+	private Collection collectDistPrefs(SessionContext context, Long subjAreaId, String courseNbr) {
+		String course = (courseNbr == null || courseNbr.length() == 0) ? null : courseNbr;
+		Long sessionId = context.getUser().getCurrentAcademicSessionId();
+		Collection prefs = new HashSet();
+		for (Department d : Department.getUserDepartments(context.getUser())) {
+			prefs.addAll(DistributionPref.getPreferences(sessionId, d.getUniqueId(), true, null, subjAreaId, course));
+			prefs.addAll(DistributionPref.getInstructorPreferences(sessionId, d.getUniqueId(), subjAreaId, course));
 		}
-		
-        Collection prefs = new HashSet();
-		for (Department d: Department.getUserDepartments(context.getUser())) {
-            prefs.addAll(DistributionPref.getPreferences(context.getUser().getCurrentAcademicSessionId(), d.getUniqueId(), true, null, subjAreaId, (courseNbr==null || courseNbr.length()==0 ? null : courseNbr)));
-            prefs.addAll(DistributionPref.getInstructorPreferences(context.getUser().getCurrentAcademicSessionId(),d.getUniqueId(),subjAreaId, (courseNbr==null || courseNbr.length()==0 ? null : courseNbr)));
-        }
-		
+		return prefs;
+	}
+
+	private String buildExportTitle(SessionContext context, Long subjAreaId, String courseNbr) {
+		String title = null;
+		if (subjAreaId != null) {
+			SubjectArea area = SubjectAreaDAO.getInstance().get(subjAreaId);
+			title = area.getSubjectAreaAbbreviation() + (courseNbr == null ? "" : " " + courseNbr);
+		}
 		Session session = SessionDAO.getInstance().get(context.getUser().getCurrentAcademicSessionId());
-		if (title==null)
-			title = session.getLabel()+" "+MSG.pageTitleDistributionPreferencesPdf();
-		else
-			title += " - "+session.getLabel()+" "+MSG.pageTitleDistributionPreferencesPdf();
-		
-		toCsvTable(out, context, prefs, title); 
+		String suffix = session.getLabel() + " " + MSG.pageTitleDistributionPreferencesPdf();
+		return (title == null) ? suffix : title + " - " + suffix;
 	}
 
 	public String getDistPrefsTableForClass(HttpServletRequest request, SessionContext context, Class_ clazz) {
