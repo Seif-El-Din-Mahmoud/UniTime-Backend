@@ -62,13 +62,19 @@ public abstract class BaseImport extends DataExchangeHelper {
     }
     
     public void loadXml(InputStream inputStream) throws Exception {
-        try {
-            Document document = (new SAXReader()).read(inputStream);
-            loadXml(document.getRootElement());
-        } catch (DocumentException e) {
-            fatal("Unable to parse given XML, reason:"+e.getMessage(), e);
-        }
-    }    
+      try {
+          SAXReader reader = new SAXReader();
+          reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+          reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+          reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+          reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+          Document document = reader.read(inputStream);
+          loadXml(document.getRootElement());
+      } catch (DocumentException e) {
+          fatal("Unable to parse given XML, reason:"+e.getMessage(), e);
+      }
+  }   
     
     public abstract void loadXml(Element rootElement) throws Exception;
     
