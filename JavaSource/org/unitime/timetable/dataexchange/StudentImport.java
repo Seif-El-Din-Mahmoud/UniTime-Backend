@@ -80,13 +80,32 @@ public class StudentImport extends BaseImport {
 	        }
 
 			beginTransaction();
-            
-	        Hashtable<String, Student> students = new Hashtable<String, Student>();
-	        for (Student student: getHibSession().createQuery(
-	        		"from Student s where s.session.uniqueId=:sessionId and s.externalUniqueId is not null", Student.class).
-                    setParameter("sessionId", session.getUniqueId()).list()) { 
-	        	students.put(student.getExternalUniqueId(), student);
-	        }
+
+			// FIX 1, Replace simple query with eager fetch query
+			// BEFORE:
+			// Hashtable<String, Student> students = new Hashtable<String, Student>();
+			// for (Student student: getHibSession().createQuery(
+			//      "from Student s where s.session.uniqueId=:sessionId
+			//       and s.externalUniqueId is not null", Student.class).
+			//      setParameter("sessionId", session.getUniqueId()).list()) {
+			//   students.put(student.getExternalUniqueId(), student);
+			// }
+			// AFTER:
+			Hashtable<String, Student> students = new Hashtable<String, Student>();
+			List<Student> studentList = getHibSession().createQuery(
+							"select distinct s from Student s " +
+									"left join fetch s.areaClasfMajors " +
+									"left join fetch s.areaClasfMinors " +
+									"left join fetch s.groups " +
+									"left join fetch s.accomodations " +
+									"where s.session.uniqueId=:sessionId " +
+									"and s.externalUniqueId is not null",
+							Student.class)
+					.setParameter("sessionId", session.getUniqueId())
+					.list();
+			for (Student student: studentList) {
+				students.put(student.getExternalUniqueId(), student);
+			}
 	        
             Map<String, AcademicArea> abbv2area = new Hashtable<String, AcademicArea>();
             for (AcademicArea area: getHibSession().createQuery(
@@ -163,7 +182,9 @@ public class StudentImport extends BaseImport {
 	        
 	        Set<Long> updatedStudents = new HashSet<Long>();
 	        List<Student> createdStudents = new ArrayList<Student>();
-	        
+
+
+			//to be fixed
 	        for (Iterator i1 = rootElement.elementIterator(); i1.hasNext(); ) {
 	            Element element = (Element) i1.next();
 
@@ -175,11 +196,29 @@ public class StudentImport extends BaseImport {
 	            		abbv2area, code2clasf, code2major, code2minor, code2group, code2accomodation, code2concentration, code2degree, code2program, code2campus);
 	        }
 
-	        if (!incremental)
-	 	        for (Student student: students.values()) {
-	        		updatedStudents.add(student.getUniqueId());
-	        		getHibSession().remove(student);
-	 	        }
+
+			// FIX 2, Replace one-by-one deletes with bulk DELETE
+			// BEFORE:
+			// if (!incremental)
+			//     for (Student student: students.values()) {
+			//         updatedStudents.add(student.getUniqueId());
+			//         getHibSession().remove(student);
+			//     }
+			// AFTER:
+			if (!incremental) {
+				Set<Long> toDeleteIds = new HashSet<Long>();
+				for (Student student: students.values()) {
+					toDeleteIds.add(student.getUniqueId());
+					updatedStudents.add(student.getUniqueId());
+				}
+				if (!toDeleteIds.isEmpty()) {
+					getHibSession().createQuery("delete from Student s where s.uniqueId in :ids")
+							.setParameter("ids", toDeleteIds)
+							.executeUpdate();
+					// Must clear cache after bulk HQL, Hibernate does not track bulk operations in its first-level cache
+					getHibSession().clear();
+				}
+			}
 	        
             getHibSession().flush();
     		if (!createdStudents.isEmpty())
