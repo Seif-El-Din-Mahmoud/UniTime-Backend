@@ -32,7 +32,7 @@ import org.unitime.timetable.spring.SpringApplicationContextHolder;
 
 @Action(value = "studentScheduling", results = {
 		@Result(name = "main", type = "redirect", location = "/main.action")
-})
+	})
 public class StudentSchedulingAction extends UniTimeAction<BlankForm> {
 	private static final long serialVersionUID = -287721682089077684L;
 
@@ -78,9 +78,7 @@ public class StudentSchedulingAction extends UniTimeAction<BlankForm> {
 		else
 			return true;
 	}
-
-
-	// Entry Point
+	
 	@Override
 	public String execute() throws Exception {
 		String target = buildQueryString();

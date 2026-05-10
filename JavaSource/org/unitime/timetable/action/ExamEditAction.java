@@ -127,12 +127,53 @@ public class ExamEditAction extends PreferencesAction2<ExamEditForm> {
 	
     // Duplication here in this class
 	public String execute() throws Exception {
-        if (ApplicationProperty.LegacyExaminationEdit.isFalse()) {
-            String baseUrl = (getExamId() == null || Boolean.TRUE.equals(isClone()) ? "examAdd" : "examEdit");
-            String url = ExamUtil.buildRedirectUrl(baseUrl, getRequest());
-            response.sendRedirect(url);
-            return null;
-        }
+		if (ApplicationProperty.LegacyExaminationEdit.isFalse()) {
+    		String url = (getExamId() == null || Boolean.TRUE.equals(isClone()) ? "examAdd" : "examEdit");
+
+
+       // allowedParams
+            Set<String> allowedParams = new HashSet<>();
+            allowedParams.add("examId");
+            allowedParams.add("op");
+            allowedParams.add("clone");
+            allowedParams.add("deleteType");
+            allowedParams.add("deleteId");
+            allowedParams.add("firstId");
+            allowedParams.add("firstType");
+
+            StringBuilder safeUrl = new StringBuilder(url);
+
+            boolean first = true;
+
+            for (Enumeration<String> e = getRequest().getParameterNames(); e.hasMoreElements();) {
+                String param = e.nextElement();
+                // Ignore unexpected parameters
+                if (!allowedParams.contains(param))
+                    continue;
+                String encodedParam =
+                        URLEncoder.encode(param, "utf-8");
+                String encodedValue =
+                        URLEncoder.encode(
+                                getRequest().getParameter(param),
+                                "utf-8"
+                        );
+                safeUrl.append(first ? "?" : "&")
+                        .append(encodedParam)
+                        .append("=")
+                        .append(encodedValue);
+                first = false;
+            }
+
+            url = safeUrl.toString();
+
+
+
+
+
+    		response.sendRedirect(url);
+			return null;
+    	}
+		
 		if (form == null) {
 			form = new ExamEditForm();
 			form.reset();
