@@ -55,21 +55,6 @@ import org.unitime.timetable.spring.SpringApplicationContextHolder;
 @Action(value = "studentScheduling", results = {
 		@Result(name = "main", type = "redirect", location = "/main.action")
 	})
-
-
-/*
- * Code Smell: God Class
- * This class handles multiple responsibilities including:
- * - authorization and role switching
- * - session matching
- * - scheduling/navigation decisions
- * - redirect handling
- * - business logic
- *
- * This violates Separation of Concerns (SoC)
- * and Single Responsibility Principle (SRP).
- * Consider extracting responsibilities into dedicated services.
- */
 public class StudentSchedulingAction extends UniTimeAction<BlankForm> {
 	private static final long serialVersionUID = -287721682089077684L;
 	
@@ -108,14 +93,7 @@ public class StudentSchedulingAction extends UniTimeAction<BlankForm> {
 		else
 			return true;
 	}
-	/*
-	 * Large and complex method:
-	 * execute() contains controller logic, permission checks,
-	 * scheduling rules, redirects, and session handling.
-	 *
-	 * This method has high complexity and should be decomposed
-	 * into smaller methods/services for maintainability and testing.
-	 */
+	
 	@Override
 	public String execute() throws Exception {
 		String target = null;
